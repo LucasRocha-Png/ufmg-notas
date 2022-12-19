@@ -28,15 +28,57 @@ def concat_dataframes():
         
         df = pd.concat([df, df_])
     df = df[["Nome", "Turno", "Modalidade", "Mínimo", "Máximo", "Ano"]]
+    df = df.dropna(subset=["Mínimo"])
     return df
     
+
+def dif_notas():
+    df_concat = concat_dataframes()
+    df_concat = df_concat[df_concat["Modalidade"] == "4.2"]
+    df_concat = df_concat[["Nome", "Turno", "Mínimo", "Ano"]]
+    
+    nomes = pd.unique(df_concat["Nome"])
+    df_notas = pd.DataFrame()
+    for nome in nomes:
+        df = df_concat[df_concat["Nome"] == nome].copy()
+        turnos = pd.unique(df["Turno"])
+        if len(turnos) > 1:
+            for turno in turnos:
+                df_ = df[df["Turno"] == turno]
+                
+                linha = {"Nome":nome,
+                         "Turno":turno,
+                        }
+                        
+                for ano in df_["Ano"].to_list():
+                    linha[ano] = float(df_[df_["Ano"] == ano]["Mínimo"])
+
+                df_notas = pd.concat([df_notas, pd.DataFrame(linha, index=[0])])  
+        else:
+            linha = {"Nome":nome,
+                     "Turno":df["Turno"].iloc[0],
+                    }
+                    
+            for ano in df["Ano"].to_list():
+                linha[ano] = float(df[df["Ano"] == ano]["Mínimo"])
+            
+            df_notas = pd.concat([df_notas, pd.DataFrame(linha, index=[0])])    
+                    
+    df_notas = df_notas.reset_index(drop=True)                    
+    df_notas.to_csv("notas.csv")
+
+    
+    
 def main():
-    df = concat_dataframes()
-    df = df[df["Modalidade"] == "4.2"]
-    df = df[df["Ano"] == "2022"]
-    df = df[df["Mínimo"] <= 700]
-    df = df.sort_values("Mínimo", ascending=False)
-    print(df)
+    # df = concat_dataframes()
+    # df = df[df["Modalidade"] == "4.2"]
+    # df = df[df["Ano"] == "2018"]
+    # df = df[df["Mínimo"] <= 700]
+    # df = df.sort_values("Mínimo", ascending=False)
+    # df = df.reset_index(drop=True)
+    
+    dif_notas()
+    
     
 if __name__ == "__main__":
     main()
