@@ -5,7 +5,7 @@ folder = os.path.dirname(__file__)
 
 def get_archives():
     global folder
-    files = [f"{folder}\\data\\{archive}" for archive in os.listdir(f"{folder}\\data") if archive.endswith(".csv")]
+    files = [f"{folder}/data/{archive}" for archive in os.listdir(f"{folder}/data") if archive.endswith(".csv")]
     return files
     
 def concat_dataframes():
